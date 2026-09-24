@@ -44,7 +44,7 @@ window#waybar {
 
 #window,
 #workspaces {
-    margin: 0 4px;
+    margin: 0 16px;
 }
 
 @keyframes blink {
