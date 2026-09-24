@@ -19,6 +19,3 @@ export SYSTEMD_EDITOR=nvim
 export TERMINAL=foot
 
 export QT_QPA_PLATFORMTHEME=qt6ct
-
-# Custom
-export DOTFILES="$HOME/.local/share/dotfiles"

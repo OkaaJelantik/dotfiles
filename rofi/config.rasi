@@ -1,0 +1,102 @@
+@theme "/dev/null"
+
+configuration {
+    font: "JetBrainsMono Nerd Font 10";
+    dpi: 1;
+    width: 30%;
+    padding: 10px;
+    show-icons: true;
+    drun-display-format: "{name}";
+}
+
+* {
+    /* Monokrom — abu-abu netral */
+    bg-base:    #1a1a1ab3;
+    bg-mantle:  #141414ff;
+    bg-surface: #3c3c3cff;
+
+    fg-text:    #e0e0e0ff;
+    fg-subtext: #a0a0a0ff;
+    fg-muted:   #6a6a6aff;
+    fg-bright:  #ffffffff;
+}
+
+window {
+    width: 30%;
+    border-radius: 8px;
+    padding: 8px;
+    background-color: @bg-base;
+    border: 1px solid;
+    border-color: @bg-surface;
+}
+
+mainbox {
+    padding: 4px;
+    spacing: 6px;
+    background-color: transparent;
+}
+
+inputbar {
+    padding: 6px 10px;
+    spacing: 6px;
+    background-color: @bg-mantle;
+    border-radius: 6px;
+    children: [prompt, entry];
+}
+
+prompt {
+    text-color: @fg-subtext;
+    background-color: transparent;
+}
+
+entry {
+    text-color: @fg-text;
+    background-color: transparent;
+    placeholder: "Cari...";
+    placeholder-color: @fg-muted;
+    cursor-color: @fg-text;
+}
+
+listview {
+    lines: 12;
+    columns: 2;
+    flow: horizontal;
+    padding: 5px;
+    spacing: 2px;
+    scrollbar: false;
+    fixed-height: true;
+    background-color: transparent;
+}
+
+element {
+    padding: 6px 8px;
+    border-radius: 6px;
+    background-color: transparent;
+    spacing: 6px;
+}
+
+element-icon {
+    size: 0.8em;
+    background-color: transparent;
+}
+
+element-text {
+    text-color: @fg-text;
+    background-color: transparent;
+    vertical-align: 0.5;
+    highlight: bold #ffffffff;
+}
+
+element selected {
+    background-color: @bg-surface;
+    border-radius: 6px;
+}
+
+element selected element-text {
+    text-color: @fg-bright;
+    highlight: bold #ffffffff;
+}
+
+element selected element-icon {
+    background-color: transparent;
+}
