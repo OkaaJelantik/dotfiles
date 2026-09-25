@@ -19,3 +19,4 @@ export SYSTEMD_EDITOR=nvim
 export TERMINAL=foot
 
 export QT_QPA_PLATFORMTHEME=qt6ct
+export NIX_PATH=$HOME/.nix-defexpr/channels:/nix/var/nix/profiles/per-user/root/channels${NIX_PATH:+:$NIX_PATH}

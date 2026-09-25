@@ -11,7 +11,7 @@ configuration {
 
 * {
     /* Monokrom — abu-abu netral */
-    bg-base:    #1a1a1ab3;
+    bg-base:    #000000cc;
     bg-mantle:  #141414ff;
     bg-surface: #3c3c3cff;
 
