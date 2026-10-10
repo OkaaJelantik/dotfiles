@@ -5,7 +5,7 @@
 
   imports = [
     ./packages.nix
-    ./Symlinks/symlinks.nix
+    ./symlinks/default.nix
   ];
 
   home = {
