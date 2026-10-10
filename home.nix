@@ -7,6 +7,7 @@
   imports = [
     ./modules/packages.nix
     ./modules/temp.nix
+    ./modules/default.nix
   ];
 
   home.username = "lann";

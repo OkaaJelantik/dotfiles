@@ -1,7 +1,6 @@
 { link, ... }:
 {
   xdg.configFile = {
-    "aria2".source   = link "aria2";
     "fuzzel".source  = link "fuzzel";
     "rofi".source    = link "rofi";
     "swayosd".source = link "swayosd";
