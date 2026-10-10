@@ -303,7 +303,7 @@ vim.pack.add({
 	"https://github.com/obsidian-nvim/obsidian.nvim",
 	"https://github.com/mrcjkb/rustaceanvim",
 	"https://github.com/christoomey/vim-tmux-navigator",
-  "https://github.com/MeanderingProgrammer/render-markdown.nvim",
+	"https://github.com/MeanderingProgrammer/render-markdown.nvim",
 })
 
 -- ============================================================================
@@ -369,47 +369,47 @@ require("ts_context_commentstring").setup({
 })
 
 local function get_notes_path()
-  local home = os.getenv("HOME")
-  local candidates = {
-    home .. "/Documents/Notes",
-    home .. "/Notes",
-  }
-  for _, p in ipairs(candidates) do
-    if vim.fn.isdirectory(p) == 1 then
-      return p
-    end
-  end
-  error("Notes directory not found")
+	local home = os.getenv("HOME")
+	local candidates = {
+		home .. "/Documents/Notes",
+		home .. "/Notes",
+	}
+	for _, p in ipairs(candidates) do
+		if vim.fn.isdirectory(p) == 1 then
+			return p
+		end
+	end
+	error("Notes directory not found")
 end
 
 local function setup_obsidian()
-  require("obsidian").setup({
-    legacy_commands = false,
-    workspaces = { { name = "Notes", path = get_notes_path() } },
-    picker = { name = "fzf-lua" },
-  })
+	require("obsidian").setup({
+		legacy_commands = false,
+		workspaces = { { name = "Notes", path = get_notes_path() } },
+		picker = { name = "fzf-lua" },
+	})
 
-  vim.keymap.set("n", "<leader>nn", function()
-    vim.cmd("Obsidian workspace")
-    vim.defer_fn(function()
-      vim.cmd("Obsidian new")
-    end, 500)
-  end, { desc = "New note" })
-  vim.keymap.set("n", "<leader>nf", "<cmd>Obsidian quick_switch<cr>", { desc = "Find note" })
-  vim.keymap.set("n", "<leader>ns", "<cmd>Obsidian search<cr>",       { desc = "Search notes" })
-  vim.keymap.set("n", "<leader>nt", "<cmd>Obsidian today<cr>",        { desc = "Today's daily note" })
-  vim.keymap.set("n", "<leader>nw", "<cmd>Obsidian workspace<cr>",    { desc = "Switch workspace" })
+	vim.keymap.set("n", "<leader>nn", function()
+		vim.cmd("Obsidian workspace")
+		vim.defer_fn(function()
+			vim.cmd("Obsidian new")
+		end, 500)
+	end, { desc = "New note" })
+	vim.keymap.set("n", "<leader>nf", "<cmd>Obsidian quick_switch<cr>", { desc = "Find note" })
+	vim.keymap.set("n", "<leader>ns", "<cmd>Obsidian search<cr>", { desc = "Search notes" })
+	vim.keymap.set("n", "<leader>nt", "<cmd>Obsidian today<cr>", { desc = "Today's daily note" })
+	vim.keymap.set("n", "<leader>nw", "<cmd>Obsidian workspace<cr>", { desc = "Switch workspace" })
 end
 
 setup_obsidian()
 
 vim.api.nvim_create_autocmd("FileType", {
-  pattern = "markdown",
-  callback = function()
-    require("render-markdown").setup({
-      preset = "obsidian",
-    })
-  end,
+	pattern = "markdown",
+	callback = function()
+		require("render-markdown").setup({
+			preset = "obsidian",
+		})
+	end,
 })
 
 require("nvim-tree").setup({
@@ -557,42 +557,42 @@ end, { desc = "Git blame/show" })
 -- Diagnostic & Floating Preview Configuration
 -- ============================================================================
 local diagnostic_signs = {
-    Error = "\u{f057} ",
-    Warn = "\u{f071} ",
-    Hint = "\u{ea61}",
-    Info = "\u{f05a}",
+	Error = "\u{f057} ",
+	Warn = "\u{f071} ",
+	Hint = "\u{ea61}",
+	Info = "\u{f05a}",
 }
 
 vim.diagnostic.config({
-    virtual_text = { prefix = "●", spacing = 4 },
-    signs = {
-        text = {
-            [vim.diagnostic.severity.ERROR] = diagnostic_signs.Error,
-            [vim.diagnostic.severity.WARN] = diagnostic_signs.Warn,
-            [vim.diagnostic.severity.INFO] = diagnostic_signs.Info,
-            [vim.diagnostic.severity.HINT] = diagnostic_signs.Hint,
-        },
-    },
-    underline = true,
-    update_in_insert = false,
-    severity_sort = true,
-    float = {
-        border = "rounded",
-        source = true,
-        header = "",
-        prefix = "",
-        focusable = false,
-        style = "minimal",
-    },
+	virtual_text = { prefix = "●", spacing = 4 },
+	signs = {
+		text = {
+			[vim.diagnostic.severity.ERROR] = diagnostic_signs.Error,
+			[vim.diagnostic.severity.WARN] = diagnostic_signs.Warn,
+			[vim.diagnostic.severity.INFO] = diagnostic_signs.Info,
+			[vim.diagnostic.severity.HINT] = diagnostic_signs.Hint,
+		},
+	},
+	underline = true,
+	update_in_insert = false,
+	severity_sort = true,
+	float = {
+		border = "rounded",
+		source = true,
+		header = "",
+		prefix = "",
+		focusable = false,
+		style = "minimal",
+	},
 })
 
 do
-    local orig = vim.lsp.util.open_floating_preview
-    function vim.lsp.util.open_floating_preview(contents, syntax, opts, ...)
-        opts = opts or {}
-        opts.border = opts.border or "rounded"
-        return orig(contents, syntax, opts, ...)
-    end
+	local orig = vim.lsp.util.open_floating_preview
+	function vim.lsp.util.open_floating_preview(contents, syntax, opts, ...)
+		opts = opts or {}
+		opts.border = opts.border or "rounded"
+		return orig(contents, syntax, opts, ...)
+	end
 end
 
 -- ============================================================================
@@ -601,124 +601,147 @@ end
 local lsp_augroup = vim.api.nvim_create_augroup("UserLspConfig", { clear = true })
 
 local function lsp_on_attach(ev)
-    local client = vim.lsp.get_client_by_id(ev.data.client_id)
-    if not client then return end
+	local client = vim.lsp.get_client_by_id(ev.data.client_id)
+	if not client then
+		return
+	end
 
-    local bufnr = ev.buf
-    local opts = { noremap = true, silent = true, buffer = bufnr }
+	local bufnr = ev.buf
+	local opts = { noremap = true, silent = true, buffer = bufnr }
 
-    -- Keymaps LSP Standard & fzf-lua
-    vim.keymap.set("n", "<leader>gd", function() require("fzf-lua").lsp_definitions({ jump_to_single_result = true }) end, opts)
-    vim.keymap.set("n", "<leader>gD", vim.lsp.buf.definition, opts)
-    vim.keymap.set("n", "<leader>gS", function() vim.cmd("vsplit"); vim.lsp.buf.definition() end, opts)
-    vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, opts)
-    vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
-    vim.keymap.set("n", "<leader>D", function() vim.diagnostic.open_float({ scope = "line" }) end, opts)
-    vim.keymap.set("n", "<leader>d", function() vim.diagnostic.open_float({ scope = "cursor" }) end, opts)
-    vim.keymap.set("n", "<leader>nd", function() vim.diagnostic.jump({ count = 1 }) end, opts)
-    vim.keymap.set("n", "<leader>pd", function() vim.diagnostic.jump({ count = -1 }) end, opts)
-    vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
-    vim.keymap.set("n", "<leader>fr", function() require("fzf-lua").lsp_references() end, opts)
-    vim.keymap.set("n", "<leader>ft", function() require("fzf-lua").lsp_typedefs() end, opts)
-    vim.keymap.set("n", "<leader>fs", function() require("fzf-lua").lsp_document_symbols() end, opts)
-    vim.keymap.set("n", "<leader>fw", function() require("fzf-lua").lsp_workspace_symbols() end, opts)
-    vim.keymap.set("n", "<leader>fi", function() require("fzf-lua").lsp_implementations() end, opts)
+	-- Keymaps LSP Standard & fzf-lua
+	vim.keymap.set("n", "<leader>gd", function()
+		require("fzf-lua").lsp_definitions({ jump_to_single_result = true })
+	end, opts)
+	vim.keymap.set("n", "<leader>gD", vim.lsp.buf.definition, opts)
+	vim.keymap.set("n", "<leader>gS", function()
+		vim.cmd("vsplit")
+		vim.lsp.buf.definition()
+	end, opts)
+	vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, opts)
+	vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
+	vim.keymap.set("n", "<leader>D", function()
+		vim.diagnostic.open_float({ scope = "line" })
+	end, opts)
+	vim.keymap.set("n", "<leader>d", function()
+		vim.diagnostic.open_float({ scope = "cursor" })
+	end, opts)
+	vim.keymap.set("n", "<leader>nd", function()
+		vim.diagnostic.jump({ count = 1 })
+	end, opts)
+	vim.keymap.set("n", "<leader>pd", function()
+		vim.diagnostic.jump({ count = -1 })
+	end, opts)
+	vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
+	vim.keymap.set("n", "<leader>fr", function()
+		require("fzf-lua").lsp_references()
+	end, opts)
+	vim.keymap.set("n", "<leader>ft", function()
+		require("fzf-lua").lsp_typedefs()
+	end, opts)
+	vim.keymap.set("n", "<leader>fs", function()
+		require("fzf-lua").lsp_document_symbols()
+	end, opts)
+	vim.keymap.set("n", "<leader>fw", function()
+		require("fzf-lua").lsp_workspace_symbols()
+	end, opts)
+	vim.keymap.set("n", "<leader>fi", function()
+		require("fzf-lua").lsp_implementations()
+	end, opts)
 
-    -- Format & Organize Imports
-    if client:supports_method("textDocument/codeAction", bufnr) then
-        vim.keymap.set("n", "<leader>oi", function()
-            vim.lsp.buf.code_action({
-                context = { only = { "source.organizeImports" }, diagnostics = {} },
-                apply = true,
-                bufnr = bufnr,
-            })
-            vim.defer_fn(function()
-                vim.lsp.buf.format({ bufnr = bufnr })
-            end, 50)
-        end, opts)
-    end
+	-- Format & Organize Imports
+	if client:supports_method("textDocument/codeAction", bufnr) then
+		vim.keymap.set("n", "<leader>oi", function()
+			vim.lsp.buf.code_action({
+				context = { only = { "source.organizeImports" }, diagnostics = {} },
+				apply = true,
+				bufnr = bufnr,
+			})
+			vim.defer_fn(function()
+				vim.lsp.buf.format({ bufnr = bufnr })
+			end, 50)
+		end, opts)
+	end
 
-    -- Format-on-save (Memanggil LSP active / treefmt)
-    if client:supports_method("textDocument/formatting") then
-        vim.api.nvim_clear_autocmds({ group = lsp_augroup, buffer = bufnr })
-        vim.api.nvim_create_autocmd("BufWritePre", {
-            group = lsp_augroup,
-            buffer = bufnr,
-            callback = function()
-                vim.lsp.buf.format({ async = false, bufnr = bufnr })
-            end,
-        })
-    end
+	-- Format-on-save (Memanggil LSP active / treefmt)
+	if client:supports_method("textDocument/formatting") then
+		vim.api.nvim_clear_autocmds({ group = lsp_augroup, buffer = bufnr })
+		vim.api.nvim_create_autocmd("BufWritePre", {
+			group = lsp_augroup,
+			buffer = bufnr,
+			callback = function()
+				vim.lsp.buf.format({ async = false, bufnr = bufnr })
+			end,
+		})
+	end
 end
 
 vim.api.nvim_create_autocmd("LspAttach", { group = lsp_augroup, callback = lsp_on_attach })
 
 -- Global diagnostic keymaps
-vim.keymap.set("n", "<leader>q", function() vim.diagnostic.setloclist({ open = true }) end, { desc = "Open diagnostic list" })
+vim.keymap.set("n", "<leader>q", function()
+	vim.diagnostic.setloclist({ open = true })
+end, { desc = "Open diagnostic list" })
 vim.keymap.set("n", "<leader>dl", vim.diagnostic.open_float, { desc = "Show line diagnostics" })
 
 -- ============================================================================
 -- Blink.cmp (Auto-completion)
 -- ============================================================================
 require("blink.cmp").setup({
-    keymap = {
-        preset = "none",
-        ["<C-Space>"] = { "show", "hide" },
-        ["<CR>"] = { "accept", "fallback" },
-        ["<C-j>"] = { "select_next", "fallback" },
-        ["<C-k>"] = { "select_prev", "fallback" },
-        ["<Tab>"] = { "snippet_forward", "fallback" },
-        ["<S-Tab>"] = { "snippet_backward", "fallback" },
-    },
-    appearance = { nerd_font_variant = "mono" },
-    completion = {
-        menu = {
-            auto_show = function()
-                return vim.bo.filetype ~= "markdown"
-            end,
-        },
-    },
-    signature = { enabled = true },
-    sources = { default = { "lsp", "path", "buffer", "snippets" } },
-    fuzzy = {
-        implementation = "prefer_rust",
-        prebuilt_binaries = { download = true },
-    },
+	keymap = {
+		preset = "none",
+		["<C-Space>"] = { "show", "hide" },
+		["<CR>"] = { "accept", "fallback" },
+		["<C-j>"] = { "select_next", "fallback" },
+		["<C-k>"] = { "select_prev", "fallback" },
+		["<Tab>"] = { "snippet_forward", "fallback" },
+		["<S-Tab>"] = { "snippet_backward", "fallback" },
+	},
+	appearance = { nerd_font_variant = "mono" },
+	completion = {
+		menu = {
+			auto_show = function()
+				return vim.bo.filetype ~= "markdown"
+			end,
+		},
+	},
+	signature = { enabled = true },
+	sources = { default = { "lsp", "path", "buffer", "snippets" } },
+	fuzzy = {
+		implementation = "prefer_rust",
+		prebuilt_binaries = { download = true },
+	},
 })
 
 -- ============================================================================
--- Native LSP Setup (Membaca executable dari $PATH devenv)
+-- Native LSP Setup
 -- ============================================================================
 local capabilities = require("blink.cmp").get_lsp_capabilities()
 vim.lsp.config["*"] = { capabilities = capabilities }
 
 local servers = {
-    "lua_ls",
-    "pyright",
-    "bashls",
-    "ts_ls",
-    "gopls",
-    "clangd",
-    "omnisharp",
+	"lua_ls",
+	"pyright",
+	"nil_ls",
 }
 
 for _, server in ipairs(servers) do
-    vim.lsp.config(server, {})
+	vim.lsp.config(server, {})
 end
 
 -- Override konfigurasi khusus (misal: Lua)
 vim.lsp.config("lua_ls", {
-    settings = {
-        Lua = {
-            diagnostics = { globals = { "vim" } },
-            telemetry = { enable = false },
-        },
-    },
+	settings = {
+		Lua = {
+			diagnostics = { globals = { "vim" } },
+			telemetry = { enable = false },
+		},
+	},
 })
 
 -- Rustaceanvim Integration
 vim.g.rustaceanvim = {
-    server = { capabilities = capabilities },
+	server = { capabilities = capabilities },
 }
 
 -- Enable semua LSP

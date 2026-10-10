@@ -1,12 +1,11 @@
-{ config, ... }:
-{
-programs.aria2 = {
+_: {
+  programs.aria2 = {
     enable = true;
     package = null;
     settings = {
       dir = "/home/lann/Downloads";
       async-dns = false;
-      
+
       enable-rpc = true;
       rpc-listen-all = true;
       rpc-listen-port = 6800;
