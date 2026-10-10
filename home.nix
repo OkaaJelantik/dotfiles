@@ -2,11 +2,11 @@
 {
   _module.args.link = name:
     config.lib.file.mkOutOfStoreSymlink
-      "${config.home.homeDirectory}/Dotfiles/${name}";
+      "${config.home.homeDirectory}/Dotfiles/Symlinks/${name}";
 
   imports = [
     ./modules/packages.nix
-    ./modules/temp.nix
+    ./modules/symlinks.nix
     ./modules/default.nix
   ];
 
