@@ -8,5 +8,6 @@
     "nvim".source = link "nvim";
     "sway".source = link "sway";
     "zsh".source = link "zsh";
+    "aria2".source = link "aria2";
   };
 }

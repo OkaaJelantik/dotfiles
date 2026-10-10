@@ -4,9 +4,8 @@
     name: config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/Dotfiles/Symlinks/${name}";
 
   imports = [
-    ./modules/packages.nix
-    ./modules/symlinks.nix
-    ./modules/default.nix
+    ./packages.nix
+    ./Symlinks/symlinks.nix
   ];
 
   home = {
