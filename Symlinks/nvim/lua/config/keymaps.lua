@@ -1,7 +1,6 @@
-vim.g.mapleader = " " -- space for leader
-vim.g.maplocalleader = " " -- space for localleader
+vim.g.mapleader = " "
+vim.g.maplocalleader = " "
 
--- better movement in wrapped text
 vim.keymap.set("n", "j", function()
 	return vim.v.count == 0 and "gj" or "j"
 end, { expr = true, silent = true, desc = "Down (wrap-aware)" })
@@ -44,7 +43,7 @@ vim.keymap.set("v", ">", ">gv", { desc = "Indent right and reselect" })
 
 vim.keymap.set("n", "J", "mzJ`z", { desc = "Join lines and keep cursor position" })
 
-vim.keymap.set("n", "<leader>pa", function() -- show file path
+vim.keymap.set("n", "<leader>pa", function()
 	local path = vim.fn.expand("%:p")
 	vim.fn.setreg("+", path)
 	print("file:", path)

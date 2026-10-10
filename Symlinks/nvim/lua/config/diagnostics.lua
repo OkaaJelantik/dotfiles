@@ -1,6 +1,3 @@
--- ============================================================================
--- Diagnostic & Floating Preview Configuration
--- ============================================================================
 local diagnostic_signs = {
 	Error = "\u{f057} ",
 	Warn = "\u{f071} ",
@@ -40,7 +37,6 @@ do
 	end
 end
 
--- Global diagnostic keymaps
 vim.keymap.set("n", "<leader>q", function()
 	vim.diagnostic.setloclist({ open = true })
 end, { desc = "Open diagnostic list" })
