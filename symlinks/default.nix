@@ -1,7 +1,12 @@
-{ link, ... }:
+{ config, ... }:
+let
+  link =
+    name: config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/Dotfiles/symlinks/${name}";
+in
 {
   xdg.configFile = {
     "fuzzel".source = link "fuzzel";
+    "foot".source = link "foot";
     "rofi".source = link "rofi";
     "swayosd".source = link "swayosd";
     "waybar".source = link "waybar";

@@ -1,10 +1,6 @@
-{ config, ... }:
+{ pkgs, ... }:
 {
-  _module.args.link =
-    name: config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/Dotfiles/Symlinks/${name}";
-
   imports = [
-    ./packages.nix
     ./symlinks/default.nix
   ];
 
@@ -12,6 +8,9 @@
     username = "lann";
     homeDirectory = "/home/lann";
     stateVersion = "26.05";
+    packages = with pkgs; [
+      devenv
+    ];
   };
   targets.genericLinux.enable = true;
   programs.home-manager.enable = true;
