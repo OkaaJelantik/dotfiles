@@ -3,7 +3,7 @@
 configuration {
     font: "JetBrainsMono Nerd Font 10";
     dpi: 1;
-    width: 30%;
+    width: 40%;
     padding: 10px;
     show-icons: true;
     drun-display-format: "{name}";
@@ -22,7 +22,7 @@ configuration {
 }
 
 window {
-    width: 30%;
+    width: 40%;
     border-radius: 8px;
     padding: 8px;
     background-color: @bg-base;
@@ -58,8 +58,8 @@ entry {
 }
 
 listview {
-    lines: 12;
-    columns: 2;
+    lines: 10;
+    columns: 3;
     flow: horizontal;
     padding: 5px;
     spacing: 2px;

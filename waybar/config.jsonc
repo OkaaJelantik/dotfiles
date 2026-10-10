@@ -2,13 +2,6 @@
 {
     "spacing": 0,
     "modules-left": [
-	//"custom/obracket",
-	//"cpu",
-	//"custom/separator",
-	//"memory",
-	//"custom/separator",
-	//"temperature",
-	//"custom/cbracket",
         "custom/arch",
         "sway/workspaces",
         "sway/mode",
@@ -19,10 +12,8 @@
     ],
     "modules-right": [
         "tray",
-        "idle_inhibitor",
         "pulseaudio",
         "network",
-        "backlight",
         "battery",
     ],
     "sway/scratchpad": {
@@ -38,23 +29,6 @@
             "activated": " ",
             "deactivated": " "
         }
-    },
-    "cpu": {
-	"interval": 1,
-	"format": "{usage}",
-	"tooltip": true,
-    },
-    "memory": {
-	"interval": 1,
-	"format": "{percentage}",
-	"tooltip": true,
-    },
-    "temperature": {
-	"interval": 1,
-	"thermal-zone": 7,
-	"critical-threshold": 90,
-	"format-critical": "{temperatureC}",
-	"format": "{temperatureC}"
     },
     "tray": {
         // "icon-size": 21,
@@ -88,7 +62,7 @@
         "format-icons": ["󰂎", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"],
     },
     "network": {
-        "format-wifi": "  {signalStrength}%",
+        "format-wifi": " ",
         "format-ethernet": "{ipaddr}/{cidr} ",
         "tooltip-format": "{essid} | {gwaddr}",
         "format-linked": "{ifname} (No IP) ",
@@ -96,7 +70,7 @@
         "format-alt": "{ifname}: {ipaddr}/{cidr}"
     },
     "pulseaudio": {
-        "format": "{icon}  {volume}%",
+        "format": "{icon}",
         "format-bluetooth": "{volume}% {icon} {format_source}",
         "format-bluetooth-muted": " {icon} {format_source}",
         "format-muted": " {format_source}",
@@ -112,16 +86,6 @@
             "default": ["", "", ""]
         },
         "on-click": "pavucontrol"
-    },
-    "custom/obracket": {
-	"format": "["
-    },
-    "custom/cbracket": {
-	"format": "]"
-    },
-    "custom/separator": {
-    	"format": "|",
-    	"tooltip": false
     },
     "custom/arch": {
     	"format": "󰣇",

@@ -16,6 +16,9 @@
   in {
     homeConfigurations."lann" = home-manager.lib.homeManagerConfiguration {
       inherit pkgs;
+      extraSpecialArgs = {
+        dotfiles = "/home/lann/Dotfiles";
+      };
       modules = [ ./home.nix ];
     };
   };
