@@ -1,0 +1,7 @@
+require("plugins.treesitter")
+require("plugins.fzf")
+require("plugins.nvim-tree")
+require("plugins.completions")
+require("plugins.markdown")
+require("plugins.mini")
+require("plugins.tmux")

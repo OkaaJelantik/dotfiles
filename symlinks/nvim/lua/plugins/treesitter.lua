@@ -7,7 +7,7 @@ vim.pack.add({
 	"https://github.com/JoosepAlviste/nvim-ts-context-commentstring",
 })
 
-local function setup_treesitter()
+local setup_treesitter = function()
 	local treesitter = require("nvim-treesitter")
 	treesitter.setup({})
 	local ensure_installed = {
@@ -26,6 +26,9 @@ local function setup_treesitter()
 		"markdown",
 		"python",
 		"typescript",
+		"tsx",
+		"php",
+		"dockerfile",
 		"vue",
 		"svelte",
 		"bash",
@@ -59,8 +62,6 @@ end
 
 setup_treesitter()
 
--- treesitter-aware comment strings (correct comment syntax inside embedded
--- regions, e.g. JS inside JSX/Vue/Svelte) — mini.comment picks this up below
 require("ts_context_commentstring").setup({
 	enable_autocmd = false,
 })

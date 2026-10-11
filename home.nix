@@ -2,8 +2,8 @@
 {
   imports = [
     ./symlinks/default.nix
+    ./modules/iptv/iptv.nix
   ];
-
   home = {
     username = "lann";
     homeDirectory = "/home/lann";

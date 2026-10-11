@@ -1,12 +1,3 @@
-vim.pack.add({
-	"https://www.github.com/neovim/nvim-lspconfig",
-	"https://github.com/creativenull/efmls-configs-nvim",
-	"https://github.com/mrcjkb/rustaceanvim",
-})
-
--- ============================================================================
--- LSP Keymaps & Attach Autocmd
--- ============================================================================
 local lsp_augroup = vim.api.nvim_create_augroup("UserLspConfig", { clear = true })
 
 local function lsp_on_attach(ev)
@@ -18,7 +9,6 @@ local function lsp_on_attach(ev)
 	local bufnr = ev.buf
 	local opts = { noremap = true, silent = true, buffer = bufnr }
 
-	-- Keymaps LSP Standard & fzf-lua
 	vim.keymap.set("n", "<leader>gd", function()
 		require("fzf-lua").lsp_definitions({ jump_to_single_result = true })
 	end, opts)
@@ -58,7 +48,6 @@ local function lsp_on_attach(ev)
 		require("fzf-lua").lsp_implementations()
 	end, opts)
 
-	-- Format & Organize Imports
 	if client:supports_method("textDocument/codeAction", bufnr) then
 		vim.keymap.set("n", "<leader>oi", function()
 			vim.lsp.buf.code_action({
@@ -72,7 +61,6 @@ local function lsp_on_attach(ev)
 		end, opts)
 	end
 
-	-- Format-on-save (Memanggil LSP active / treefmt)
 	if client:supports_method("textDocument/formatting") then
 		vim.api.nvim_clear_autocmds({ group = lsp_augroup, buffer = bufnr })
 		vim.api.nvim_create_autocmd("BufWritePre", {
@@ -86,38 +74,3 @@ local function lsp_on_attach(ev)
 end
 
 vim.api.nvim_create_autocmd("LspAttach", { group = lsp_augroup, callback = lsp_on_attach })
-
--- ============================================================================
--- Native LSP Setup
--- ============================================================================
-local capabilities = require("blink.cmp").get_lsp_capabilities()
-vim.lsp.config["*"] = { capabilities = capabilities }
-
--- Map from LSP server name to binary name; only enable servers whose
--- binary is present in PATH. nil_ls -> "nil" is intentional.
-local servers = {
-	lua_ls = "lua-language-server",
-	pyright = "pyright",
-	nil_ls = "nil",
-}
-
--- Set all server-specific configs first, then enable those present in PATH
-vim.lsp.config("lua_ls", {
-	settings = {
-		Lua = {
-			diagnostics = { globals = { "vim" } },
-			telemetry = { enable = false },
-		},
-	},
-})
-
-for server, binary in pairs(servers) do
-	if vim.fn.executable(binary) == 1 then
-		vim.lsp.enable(server)
-	end
-end
-
--- Rustaceanvim Integration
-vim.g.rustaceanvim = {
-	server = { capabilities = capabilities },
-}
