@@ -5,5 +5,6 @@
     markitdown
     lazydocker
     lazygit
+    nix-search-cli
   ];
 }
