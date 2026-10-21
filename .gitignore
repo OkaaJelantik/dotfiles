@@ -1,13 +1,27 @@
-# Devenv
+# Devenv & direnv
 .devenv*
 devenv.local.nix
 devenv.local.yaml
-
-# direnv
-.direnv
-
-# pre-commit
+.direnv/
 .pre-commit-config.yaml
 
-# Etc
-Symlinks/zsh/.zsh_history
+# Secrets & Local credentials
+*.secret
+*.secrets
+*secrets.zsh
+.env
+.env.*
+!.env.example
+
+# Zsh history & runtime state
+.zsh_history
+**/zsh/.zsh_history
+symlinks/zsh/.zsh_history
+configs/zsh/.zsh_history
+
+# Nix build outputs
+result
+result-*
+
+# YT-DLP cookies
+**/yt-dlp/cookies.txt
