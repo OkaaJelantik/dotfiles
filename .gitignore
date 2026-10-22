@@ -25,3 +25,6 @@ result-*
 
 # YT-DLP cookies
 **/yt-dlp/cookies.txt
+
+# Local Agent Skills (managed by agent-skill)
+.agents/

@@ -83,8 +83,8 @@ let
         echo "  -t, --target DIR Target custom directory"
         echo ""
         echo "Search features:"
-        echo "  Type skill name (e.g. 'a11y') OR keywords (e.g. 'python', 'docker', 'wcag')"
-        echo "  to filter based on full descriptions from SKILL.md."
+        echo "  Type skill name (e.g. 'a11y') OR keywords (e.g. 'python', 'sql', 'docker')"
+        echo "  Exact substring matching across skill names and descriptions."
         echo ""
         echo "Examples:"
         echo "  agent-skill            # Unified search by name or keyword & link"
@@ -148,23 +148,29 @@ let
           MANIFEST_FILE="$CATALOG_DIR/manifest.tsv"
 
           if [ -f "$MANIFEST_FILE" ]; then
-            SELECTED=$(fzf \
+            SELECTED=$(awk -F'\t' '{ printf "%-45s  \033[2m│\033[0m %s\t%s\n", $1, $2, $1 }' "$MANIFEST_FILE" | fzf \
               --multi \
-              --delimiter="\t" \
-              --with-nth="1,2" \
+              --exact \
+              --ansi \
+              --delimiter=$'\t' \
+              --with-nth="1" \
+              --accept-nth="2" \
               --prompt="Search & link skills > " \
-              --header="[TAB]: Multi-select | [Enter]: Confirm link | [ESC]: Cancel" \
-              --preview="if [ -f '$CATALOG_DIR/{1}/SKILL.md' ]; then bat --style=plain --color=always '$CATALOG_DIR/{1}/SKILL.md'; else cat '$CATALOG_DIR/{1}/SKILL.md'; fi" \
-              --preview-window=right:55%:wrap < "$MANIFEST_FILE" || true)
+              --header="[TAB]: Multi-select | [Enter]: Confirm link | [Ctrl-/]: Toggle Preview | [ESC]: Cancel" \
+              --preview="if [ -f '$CATALOG_DIR/{2}/SKILL.md' ]; then bat --style=plain --color=always '$CATALOG_DIR/{2}/SKILL.md'; else cat '$CATALOG_DIR/{2}/SKILL.md'; fi" \
+              --preview-window=right:55%:wrap \
+              --bind="ctrl-/:toggle-preview" || true)
           else
             echo "[*] Scanning catalog from: $CATALOG_DIR"
             SKILLS=$(cd "$CATALOG_DIR" && find . -mindepth 2 -maxdepth 2 -type d | sed 's|^\./||' | sort)
             SELECTED=$(echo "$SKILLS" | fzf \
               --multi \
+              --exact \
               --prompt="Search & link skills > " \
-              --header="[TAB]: Multi-select | [Enter]: Confirm link | [ESC]: Cancel" \
+              --header="[TAB]: Multi-select | [Enter]: Confirm link | [Ctrl-/]: Toggle Preview | [ESC]: Cancel" \
               --preview="if [ -f '$CATALOG_DIR/{}/SKILL.md' ]; then bat --style=plain --color=always '$CATALOG_DIR/{}/SKILL.md'; else cat '$CATALOG_DIR/{}/SKILL.md'; fi" \
-              --preview-window=right:55%:wrap || true)
+              --preview-window=right:55%:wrap \
+              --bind="ctrl-/:toggle-preview" || true)
           fi
 
           if [ -z "$SELECTED" ]; then
@@ -174,7 +180,7 @@ let
 
           PROCESSED_NAMES=""
 
-          while IFS=$'\t' read -r entry _desc; do
+          while IFS= read -r entry; do
             [ -z "$entry" ] && continue
             skill_name=$(basename "$entry")
             dest="$TARGET_DIR/$skill_name"
@@ -217,10 +223,12 @@ let
 
           SELECTED=$(echo "$LINKED" | fzf \
             --multi \
+            --exact \
             --prompt="Remove skills > " \
-            --header="[TAB]: Multi-select | [Enter]: Confirm removal | [ESC]: Cancel" \
+            --header="[TAB]: Multi-select | [Enter]: Confirm removal | [Ctrl-/]: Toggle Preview | [ESC]: Cancel" \
             --preview="if [ -f '$TARGET_DIR/{}/SKILL.md' ]; then bat --style=plain --color=always '$TARGET_DIR/{}/SKILL.md'; else cat '$TARGET_DIR/{}/SKILL.md'; fi" \
-            --preview-window=right:55%:wrap || true)
+            --preview-window=right:55%:wrap \
+            --bind="ctrl-/:toggle-preview" || true)
 
           if [ -z "$SELECTED" ]; then
             echo "Cancelled."
