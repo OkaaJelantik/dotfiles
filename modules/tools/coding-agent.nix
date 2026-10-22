@@ -29,6 +29,7 @@ in
     litellm
     tgrep
     tgrep-mcp
+    spec-kit
   ];
 
   programs.nix-skills = {

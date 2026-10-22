@@ -1,4 +1,5 @@
-# Aliases
+# Agent Skill Manager (interactive link/unlink with fzf preview)
+alias askill='agent-skill'
 
 # Nix Search with fzf preview
 # Usage:

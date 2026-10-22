@@ -30,6 +30,9 @@
       pkgs = nixpkgs.legacyPackages.${system};
       treefmtEval = treefmt-nix.lib.evalModule pkgs {
         projectRootFile = "flake.nix";
+        settings.global.excludes = [
+          "skills/**"
+        ];
         programs = {
           nixfmt.enable = true;
           deadnix.enable = true;

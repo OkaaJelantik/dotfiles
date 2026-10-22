@@ -17,9 +17,11 @@ Konfigurasi dotfiles modular berbasis Nix Flakes dan Home Manager (standalone di
 │   ├── editor/              # Neovim (config link)
 │   ├── shell/               # Zsh config link
 │   └── tools/               # CLI & Development tools
-│       ├── cli.nix          # devenv, lazydocker, lazygit, markitdown
-│       ├── coding-agent.nix # graphify, litellm, tgrep, tgrep-mcp, nix-skills
-│       └── media.nix        # iptv (packaged script), yt-dlp, aria2
+│       ├── cli.nix          # devenv, lazydocker, lazygit, markitdown, nix-search-cli
+│       ├── coding-agent.nix # graphify, litellm, tgrep, tgrep-mcp, spec-kit, nix-skills
+│       ├── media.nix        # iptv (packaged script), yt-dlp, aria2
+│       └── skills-manager.nix # Master skills catalog derivation & agent-skill CLI
+├── skills/                  # Master catalog bundle (Claude-skills & Specify)
 └── configs/                 # File konfigurasi asli (di-symlink via mkOutOfStoreSymlink)
     ├── nvim/
     ├── sway/
@@ -56,6 +58,23 @@ nix develop
 ```
 
 Tersedia tool development: `nil`, `statix`, `lua-language-server`, serta alias perintah `format` dan `nixlint`.
+
+### Manajemen Skill Agent (`agent-skill` / `askill`)
+
+Manajemen skill on-demand untuk project lokal tanpa membebani context window agent dengan 380+ skill sekaligus:
+
+```bash
+# Di dalam folder project apapun:
+askill            # Buka picker FZF interaktif (multi-select dengan TAB) & otomatis seed .agents/ ke .gitignore
+askill ls         # Tampilkan skill yang sedang aktif di project ini
+askill rm         # Hapus link skill tertentu dari project
+```
+
+Opsi flag target:
+
+- `--claude` : Simpan symlink ke `.claude/skills`
+- `--gemini` : Simpan symlink ke `.gemini/skills`
+- Default : `.agents/skills`
 
 ### Manajemen Rahasia (Secrets)
 
