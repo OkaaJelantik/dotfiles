@@ -2,18 +2,26 @@
 let
   skillCatalog = pkgs.stdenvNoCC.mkDerivation {
     pname = "agent-skills-catalog";
-    version = "1.0.0";
+    version = "1.1.0";
     src = ../../skills;
 
+    # Dynamically discover any pool under skills/ and any skill folder containing SKILL.md
     installPhase = ''
       mkdir -p $out/share/agent-skills
-      if [ -d Claude-skills ]; then
-        cp -r Claude-skills/* $out/share/agent-skills/
-      fi
-      if [ -d Specify/skills ]; then
-        cp -r Specify/skills/* $out/share/agent-skills/
-      fi
-      rm -f $out/share/agent-skills/README.md
+
+      for pool_dir in */; do
+        [ -d "$pool_dir" ] || continue
+        pool="''${pool_dir%/}"
+
+        for skill_dir in "$pool_dir"*/; do
+          [ -d "$skill_dir" ] || continue
+          if [ -f "$skill_dir/SKILL.md" ]; then
+            skill_name=$(basename "$skill_dir")
+            mkdir -p "$out/share/agent-skills/$pool"
+            cp -r "$skill_dir" "$out/share/agent-skills/$pool/$skill_name"
+          fi
+        done
+      done
     '';
   };
 
@@ -49,6 +57,10 @@ let
         echo "  --claude        Target .claude/skills instead of .agents/skills"
         echo "  --gemini        Target .gemini/skills instead of .agents/skills"
         echo "  -t, --target DIR Target custom directory"
+        echo ""
+        echo "Structure:"
+        echo "  Catalog: <pool>/<skill_folder>"
+        echo "  Target:  .agents/skills/<skill_folder>"
         echo ""
         echo "Examples:"
         echo "  agent-skill            # Interactively select & link skills"
@@ -111,7 +123,8 @@ let
 
           echo "[*] Scanning catalog from: $CATALOG_DIR"
 
-          SKILLS=$(find -L "$CATALOG_DIR" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | sort)
+          # Find all skills: relative paths as <pool>/<skill>
+          SKILLS=$(cd "$CATALOG_DIR" && find . -mindepth 2 -maxdepth 2 -type d | sed 's|^\./||' | sort)
 
           if [ -z "$SKILLS" ]; then
             echo "[!] No skills found in catalog ($CATALOG_DIR)."
@@ -130,11 +143,29 @@ let
             exit 0
           fi
 
-          while IFS= read -r skill; do
-            if [ -n "$skill" ]; then
-              ln -sfn "$CATALOG_DIR/$skill" "$TARGET_DIR/$skill"
-              echo "[+] Linked: $skill -> $TARGET_SUBDIR/$skill"
+          # Track processed skill names to detect collisions across multiple pools
+          PROCESSED_NAMES=""
+
+          while IFS= read -r entry; do
+            [ -z "$entry" ] && continue
+            skill_name=$(basename "$entry")
+            dest="$TARGET_DIR/$skill_name"
+
+            # Collision check: did user select same skill name from 2 different pools?
+            if echo "$PROCESSED_NAMES" | grep -qw "$skill_name"; then
+              echo "[!] Warning: Duplicate skill name '$skill_name' detected (already linked). Skipping '$entry'."
+              continue
             fi
+            PROCESSED_NAMES="$PROCESSED_NAMES $skill_name"
+
+            # Safety check: do not overwrite a real non-symlink file or directory
+            if [ -e "$dest" ] && [ ! -L "$dest" ]; then
+              echo "[!] Safety warning: '$dest' exists and is NOT a symlink. Skipping to avoid data loss."
+              continue
+            fi
+
+            ln -sfn "$CATALOG_DIR/$entry" "$dest"
+            echo "[+] Linked: $entry -> $TARGET_SUBDIR/$skill_name"
           done <<< "$SELECTED"
 
           echo ""
@@ -172,8 +203,13 @@ let
 
           while IFS= read -r skill; do
             if [ -n "$skill" ]; then
-              rm -f "$TARGET_DIR/$skill"
-              echo "[-] Removed: $TARGET_SUBDIR/$skill"
+              # Only delete if it is actually a symlink
+              if [ -L "$TARGET_DIR/$skill" ]; then
+                rm -f "$TARGET_DIR/$skill"
+                echo "[-] Removed: $TARGET_SUBDIR/$skill"
+              else
+                echo "[!] Skipping '$skill': not a symlink (protected)."
+              fi
             fi
           done <<< "$SELECTED"
           ;;
