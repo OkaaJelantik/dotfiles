@@ -2,12 +2,15 @@
 let
   skillCatalog = pkgs.stdenvNoCC.mkDerivation {
     pname = "agent-skills-catalog";
-    version = "1.1.0";
+    version = "1.2.0";
     src = ../../skills;
 
-    # Dynamically discover any pool under skills/ and any skill folder containing SKILL.md
+    # Dynamically discover any pool under skills/, copy skills containing SKILL.md,
+    # and pre-compile a manifest.tsv for instant indexed search by keyword & description.
     installPhase = ''
       mkdir -p $out/share/agent-skills
+      manifest="$out/share/agent-skills/manifest.tsv"
+      touch "$manifest"
 
       for pool_dir in */; do
         [ -d "$pool_dir" ] || continue
@@ -15,13 +18,34 @@ let
 
         for skill_dir in "$pool_dir"*/; do
           [ -d "$skill_dir" ] || continue
-          if [ -f "$skill_dir/SKILL.md" ]; then
+          skill_file="$skill_dir/SKILL.md"
+          if [ -f "$skill_file" ]; then
             skill_name=$(basename "$skill_dir")
             mkdir -p "$out/share/agent-skills/$pool"
             cp -r "$skill_dir" "$out/share/agent-skills/$pool/$skill_name"
+
+            # Extract frontmatter description for the manifest index
+            desc=$(awk '
+              BEGIN { in_fm = 0; desc = ""; }
+              /^---$/ { if (in_fm == 0) { in_fm = 1; next; } else { exit; } }
+              in_fm && /^description:[[:space:]]*/ {
+                sub(/^description:[[:space:]]*/, "");
+                gsub(/^["\047]|["\047]$/, "");
+                desc = $0;
+              }
+              END {
+                if (desc == "") desc = "No description provided";
+                gsub(/[\t\r\n]+/, " ", desc);
+                print desc;
+              }
+            ' "$skill_file")
+
+            printf "%s/%s\t%s\n" "$pool" "$skill_name" "$desc" >> "$manifest"
           fi
         done
       done
+
+      sort -o "$manifest" "$manifest"
     '';
   };
 
@@ -48,7 +72,7 @@ let
         echo "Usage: agent-skill [command] [options]"
         echo ""
         echo "Commands:"
-        echo "  add (default)   Select and link skills into current project"
+        echo "  add (default)   Search (by name or description) and link skills into project"
         echo "  rm, remove      Select and remove linked skills from project"
         echo "  ls, list        List currently linked skills in project"
         echo "  help, --help    Show this help message"
@@ -58,12 +82,12 @@ let
         echo "  --gemini        Target .gemini/skills instead of .agents/skills"
         echo "  -t, --target DIR Target custom directory"
         echo ""
-        echo "Structure:"
-        echo "  Catalog: <pool>/<skill_folder>"
-        echo "  Target:  .agents/skills/<skill_folder>"
+        echo "Search features:"
+        echo "  Type skill name (e.g. 'a11y') OR keywords (e.g. 'python', 'docker', 'wcag')"
+        echo "  to filter based on full descriptions from SKILL.md."
         echo ""
         echo "Examples:"
-        echo "  agent-skill            # Interactively select & link skills"
+        echo "  agent-skill            # Unified search by name or keyword & link"
         echo "  agent-skill add        # Same as above"
         echo "  agent-skill rm         # Interactively remove linked skills"
         echo "  agent-skill ls         # View active skills in project"
@@ -121,44 +145,46 @@ let
           seed_gitignore
           mkdir -p "$TARGET_DIR"
 
-          echo "[*] Scanning catalog from: $CATALOG_DIR"
+          MANIFEST_FILE="$CATALOG_DIR/manifest.tsv"
 
-          # Find all skills: relative paths as <pool>/<skill>
-          SKILLS=$(cd "$CATALOG_DIR" && find . -mindepth 2 -maxdepth 2 -type d | sed 's|^\./||' | sort)
-
-          if [ -z "$SKILLS" ]; then
-            echo "[!] No skills found in catalog ($CATALOG_DIR)."
-            exit 1
+          if [ -f "$MANIFEST_FILE" ]; then
+            SELECTED=$(fzf \
+              --multi \
+              --delimiter="\t" \
+              --with-nth="1,2" \
+              --prompt="Search & link skills > " \
+              --header="[TAB]: Multi-select | [Enter]: Confirm link | [ESC]: Cancel" \
+              --preview="if [ -f '$CATALOG_DIR/{1}/SKILL.md' ]; then bat --style=plain --color=always '$CATALOG_DIR/{1}/SKILL.md'; else cat '$CATALOG_DIR/{1}/SKILL.md'; fi" \
+              --preview-window=right:55%:wrap < "$MANIFEST_FILE" || true)
+          else
+            echo "[*] Scanning catalog from: $CATALOG_DIR"
+            SKILLS=$(cd "$CATALOG_DIR" && find . -mindepth 2 -maxdepth 2 -type d | sed 's|^\./||' | sort)
+            SELECTED=$(echo "$SKILLS" | fzf \
+              --multi \
+              --prompt="Search & link skills > " \
+              --header="[TAB]: Multi-select | [Enter]: Confirm link | [ESC]: Cancel" \
+              --preview="if [ -f '$CATALOG_DIR/{}/SKILL.md' ]; then bat --style=plain --color=always '$CATALOG_DIR/{}/SKILL.md'; else cat '$CATALOG_DIR/{}/SKILL.md'; fi" \
+              --preview-window=right:55%:wrap || true)
           fi
-
-          SELECTED=$(echo "$SKILLS" | fzf \
-            --multi \
-            --prompt="Link skills > " \
-            --header="[TAB]: Multi-select | [Enter]: Confirm link | [ESC]: Cancel" \
-            --preview="if [ -f '$CATALOG_DIR/{}/SKILL.md' ]; then bat --style=plain --color=always '$CATALOG_DIR/{}/SKILL.md'; else cat '$CATALOG_DIR/{}/SKILL.md'; fi" \
-            --preview-window=right:60%:wrap)
 
           if [ -z "$SELECTED" ]; then
             echo "Cancelled."
             exit 0
           fi
 
-          # Track processed skill names to detect collisions across multiple pools
           PROCESSED_NAMES=""
 
-          while IFS= read -r entry; do
+          while IFS=$'\t' read -r entry _desc; do
             [ -z "$entry" ] && continue
             skill_name=$(basename "$entry")
             dest="$TARGET_DIR/$skill_name"
 
-            # Collision check: did user select same skill name from 2 different pools?
             if echo "$PROCESSED_NAMES" | grep -qw "$skill_name"; then
-              echo "[!] Warning: Duplicate skill name '$skill_name' detected (already linked). Skipping '$entry'."
+              echo "[!] Warning: Duplicate skill '$skill_name' selected from multiple pools. Skipping '$entry'."
               continue
             fi
             PROCESSED_NAMES="$PROCESSED_NAMES $skill_name"
 
-            # Safety check: do not overwrite a real non-symlink file or directory
             if [ -e "$dest" ] && [ ! -L "$dest" ]; then
               echo "[!] Safety warning: '$dest' exists and is NOT a symlink. Skipping to avoid data loss."
               continue
@@ -194,7 +220,7 @@ let
             --prompt="Remove skills > " \
             --header="[TAB]: Multi-select | [Enter]: Confirm removal | [ESC]: Cancel" \
             --preview="if [ -f '$TARGET_DIR/{}/SKILL.md' ]; then bat --style=plain --color=always '$TARGET_DIR/{}/SKILL.md'; else cat '$TARGET_DIR/{}/SKILL.md'; fi" \
-            --preview-window=right:60%:wrap)
+            --preview-window=right:55%:wrap || true)
 
           if [ -z "$SELECTED" ]; then
             echo "Cancelled."
@@ -203,7 +229,6 @@ let
 
           while IFS= read -r skill; do
             if [ -n "$skill" ]; then
-              # Only delete if it is actually a symlink
               if [ -L "$TARGET_DIR/$skill" ]; then
                 rm -f "$TARGET_DIR/$skill"
                 echo "[-] Removed: $TARGET_SUBDIR/$skill"
