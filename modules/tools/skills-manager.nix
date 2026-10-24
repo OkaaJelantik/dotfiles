@@ -124,12 +124,11 @@ let
 
       CMD="''${ARGS[0]:-add}"
 
-      GIT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
-      TARGET_DIR="''${GIT_ROOT}/''${TARGET_SUBDIR}"
+      TARGET_DIR="$PWD/$TARGET_SUBDIR"
 
       seed_gitignore() {
-        local gitignore="''${GIT_ROOT}/.gitignore"
-        if [ -d "''${GIT_ROOT}/.git" ] || [ -f "''${GIT_ROOT}/.git" ]; then
+        local gitignore="$PWD/.gitignore"
+        if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
           if [ ! -f "$gitignore" ]; then
             printf "# Local Agent Skills (managed by agent-skill)\n%s\n" "$TARGET_ENTRY" > "$gitignore"
             echo "[+] Created .gitignore with $TARGET_ENTRY"
@@ -142,54 +141,45 @@ let
 
       case "$CMD" in
         add)
-          seed_gitignore
-          mkdir -p "$TARGET_DIR"
-
           MANIFEST_FILE="$CATALOG_DIR/manifest.tsv"
-
-          if [ -f "$MANIFEST_FILE" ]; then
-            SELECTED=$(awk -F'\t' '{ printf "%-45s  \033[2m│\033[0m %s\t%s\n", $1, $2, $1 }' "$MANIFEST_FILE" | fzf \
-              --multi \
-              --exact \
-              --ansi \
-              --delimiter=$'\t' \
-              --with-nth="1" \
-              --accept-nth="2" \
-              --prompt="Search & link skills > " \
-              --header="[TAB]: Multi-select | [Enter]: Confirm link | [Ctrl-/]: Toggle Preview | [ESC]: Cancel" \
-              --preview="if [ -f '$CATALOG_DIR/{2}/SKILL.md' ]; then bat --style=plain --color=always '$CATALOG_DIR/{2}/SKILL.md'; else cat '$CATALOG_DIR/{2}/SKILL.md'; fi" \
-              --preview-window=right:55%:wrap \
-              --bind="ctrl-/:toggle-preview" || true)
-          else
-            echo "[*] Scanning catalog from: $CATALOG_DIR"
-            SKILLS=$(cd "$CATALOG_DIR" && find . -mindepth 2 -maxdepth 2 -type d | sed 's|^\./||' | sort)
-            SELECTED=$(echo "$SKILLS" | fzf \
-              --multi \
-              --exact \
-              --prompt="Search & link skills > " \
-              --header="[TAB]: Multi-select | [Enter]: Confirm link | [Ctrl-/]: Toggle Preview | [ESC]: Cancel" \
-              --preview="if [ -f '$CATALOG_DIR/{}/SKILL.md' ]; then bat --style=plain --color=always '$CATALOG_DIR/{}/SKILL.md'; else cat '$CATALOG_DIR/{}/SKILL.md'; fi" \
-              --preview-window=right:55%:wrap \
-              --bind="ctrl-/:toggle-preview" || true)
+          if [ ! -f "$MANIFEST_FILE" ]; then
+            echo "[!] Skills catalog manifest not found at: $CATALOG_DIR"
+            exit 1
           fi
+
+          SELECTED=$(awk -F'\t' '{ printf "%-45s  \033[2m│\033[0m %s\t%s\n", $1, $2, $1 }' "$MANIFEST_FILE" | fzf \
+            --multi \
+            --exact \
+            --ansi \
+            --delimiter=$'\t' \
+            --with-nth="1" \
+            --accept-nth="2" \
+            --prompt="Search & link skills > " \
+            --header="[TAB]: Multi-select | [Enter]: Confirm link | [Ctrl-/]: Toggle Preview | [ESC]: Cancel" \
+            --preview="if [ -f '$CATALOG_DIR/{2}/SKILL.md' ]; then bat --style=plain --color=always '$CATALOG_DIR/{2}/SKILL.md'; else cat '$CATALOG_DIR/{2}/SKILL.md'; fi" \
+            --preview-window=right:55%:wrap \
+            --bind="ctrl-/:toggle-preview" || true)
 
           if [ -z "$SELECTED" ]; then
             echo "Cancelled."
             exit 0
           fi
 
-          PROCESSED_NAMES=""
+          seed_gitignore
+          mkdir -p "$TARGET_DIR"
+
+          declare -A seen=()
 
           while IFS= read -r entry; do
             [ -z "$entry" ] && continue
             skill_name=$(basename "$entry")
             dest="$TARGET_DIR/$skill_name"
 
-            if echo "$PROCESSED_NAMES" | grep -qw "$skill_name"; then
+            if [ -n "''${seen[$skill_name]:-}" ]; then
               echo "[!] Warning: Duplicate skill '$skill_name' selected from multiple pools. Skipping '$entry'."
               continue
             fi
-            PROCESSED_NAMES="$PROCESSED_NAMES $skill_name"
+            seen["$skill_name"]=1
 
             if [ -e "$dest" ] && [ ! -L "$dest" ]; then
               echo "[!] Safety warning: '$dest' exists and is NOT a symlink. Skipping to avoid data loss."
@@ -211,7 +201,7 @@ let
 
         rm|remove)
           if [ ! -d "$TARGET_DIR" ]; then
-            echo "[!] Directory $TARGET_SUBDIR does not exist in $GIT_ROOT."
+            echo "[!] Directory $TARGET_SUBDIR does not exist in $PWD."
             exit 0
           fi
 
@@ -253,7 +243,7 @@ let
             exit 0
           fi
 
-          echo "[*] Active skills in $TARGET_SUBDIR ($GIT_ROOT):"
+          echo "[*] Active skills in $TARGET_SUBDIR ($PWD):"
           count=0
           for link in "$TARGET_DIR"/*; do
             if [ -L "$link" ]; then

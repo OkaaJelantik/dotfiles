@@ -3,11 +3,9 @@ alias askill='agent-skill'
 
 # Nix Search with fzf preview
 # Usage:
-#   ns        -> interactive search across packages with details preview
-#   ns <query> -> pre-filter search (e.g. ns python)
-alias ns='nix-search "*" | fzf --preview "nix-search --details {1}" --preview-window=right:60%:wrap'
-
-nsf() {
+#   ns          -> interactive search across all packages
+#   ns <query>  -> search filtered by query (e.g. ns python)
+ns() {
   local query="${*:-*}"
   nix-search "$query" | fzf --preview "nix-search --details {1}" --preview-window=right:60%:wrap
 }

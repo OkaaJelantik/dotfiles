@@ -20,10 +20,5 @@
       enabledCustomApps = with spicePkgs.apps; [
         lyricsPlus
       ];
-      enabledSnippets = with spicePkgs.snippets; [
-      ];
-
-      #theme = spicePkgs.themes.catppuccin;
-      #colorScheme = "mocha";
     };
 }

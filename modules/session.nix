@@ -2,7 +2,6 @@ _: {
   home = {
     sessionPath = [
       "$HOME/.local/bin"
-      "$HOME/.local/share/../bin"
     ];
 
     sessionVariables = {

@@ -29,7 +29,8 @@ in
     litellm
     tgrep
     tgrep-mcp
-    spec-kit
+    # spec-kit
+    openspec
   ];
 
   programs.nix-skills = {
