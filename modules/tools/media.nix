@@ -23,7 +23,10 @@ let
   };
 in
 {
-  home.packages = [ iptv ];
+  home.packages = [
+    iptv
+    pkgs.playerctl
+  ];
 
   xdg.configFile = {
     "aria2".source = link "aria2";

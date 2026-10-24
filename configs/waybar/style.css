@@ -19,8 +19,17 @@ window#waybar {
 #tray,
 #mode,
 #idle_inhibitor,
-#scratchpad {
+#scratchpad,
+#mpris {
   padding: 0px 10px;
+}
+
+#mpris.spotify {
+  color: #1db954;
+}
+
+#mpris.paused {
+  color: #888888;
 }
 
 #custom-separator {
