@@ -1,0 +1,6 @@
+--cookies $XDG_CONFIG_HOME/yt-dlp/cookies.txt
+-f "bv*[ext=mp4][vcodec^=avc]+ba[ext=m4a]/b[ext=mp4]/w"
+--merge-output-format mp4
+-P "~/Downloads/yt-dlp"
+-o "%(uploader)s_%(id)s.%(ext)s"
+
