@@ -1,16 +1,7 @@
-{ pkgs, ... }:
+{ inputs, pkgs, ... }:
 {
   home.packages = with pkgs; [
     devenv
-    lazydocker
-    lazygit
-    nix-search-cli
-
-    (pkgs.python3.withPackages (
-      ps: with ps; [
-        markitdown
-        python-pptx
-      ]
-    ))
+    inputs.devdash.packages.${pkgs.stdenv.hostPlatform.system}.default
   ];
 }

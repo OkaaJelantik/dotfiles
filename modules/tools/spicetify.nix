@@ -14,6 +14,7 @@
 
       enabledExtensions = with spicePkgs.extensions; [
         adblock
+        fullScreen # daksh2k full-screen: F = fullscreen, T = TV mode
         hidePodcasts
         shuffle # shuffle+
       ];

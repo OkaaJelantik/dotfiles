@@ -1,5 +1,40 @@
---cookies $XDG_CONFIG_HOME/yt-dlp/cookies.txt
--f "bv*[ext=mp4]+ba[ext=m4a]/b[ext=mp4] / w"
---merge-output-format mp4
--o "%(uploader)s_%(id)s.%(ext)s"
+# ~/.config/yt-dlp/config — default untuk semua pemanggilan yt-dlp
+# Named config per-site: insta, dll. Pakai dengan -> yt-dlp --config-locations insta <URL>
 
+# --- Format: prioritas H.264/AAC mp4 (kompatibel luas), fallback terbaik ---
+-f "bv*[ext=mp4][vcodec^=avc]+ba[ext=m4a]/b[ext=mp4]/w"
+--merge-output-format mp4
+
+# --- Output & lokasi ---
+-P "~/Downloads/yt-dlp"
+-o "%(uploader)s_%(id)s.%(ext)s"
+--windows-filenames
+--restrict-filenames
+
+# --- Metadata & subtitle ---
+--embed-metadata
+--embed-thumbnail
+--embed-chapters
+--write-subs
+--write-auto-subs
+--sub-langs "id,en"
+--convert-subs srt
+
+# --- Perilaku ---
+--no-mtime
+--retries 10
+--fragment-retries 10
+--concurrent-fragments 4
+--no-overwrites
+--continue
+--progress
+--newline
+
+# --- Cookies (aktifkan kalau konten butuh login; cookies.txt ikut .gitignore) ---
+# --cookies $XDG_CONFIG_HOME/yt-dlp/cookies.txt
+
+# --- Arsitek: hindari mengunduh playlist raksasa tanpa sadar ---
+--no-playlist
+
+# --- Sponsorblock (opsional, buka jika mau) ---
+# --sponsorblock-remove sponsor,selfpromo

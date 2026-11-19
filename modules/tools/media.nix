@@ -1,8 +1,5 @@
-{ config, pkgs, ... }:
+{ pkgs, ... }:
 let
-  link =
-    name: config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/Dotfiles/configs/${name}";
-
   iptv = pkgs.writeShellApplication {
     name = "iptv";
     runtimeInputs = [
@@ -24,9 +21,4 @@ let
 in
 {
   home.packages = [ iptv ];
-
-  xdg.configFile = {
-    "aria2".source = link "aria2";
-    "yt-dlp".source = link "yt-dlp";
-  };
 }

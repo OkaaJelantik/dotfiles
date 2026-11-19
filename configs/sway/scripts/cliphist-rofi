@@ -1,0 +1,16 @@
+#!/bin/sh
+# $mod+v: pick a cliphist entry with rofi and put it back on the clipboard.
+# -display-columns 2 hides the "<id>\t" prefix; the picked line keeps it, which
+# is what cliphist decode needs. wl-copy (2.3) infers the MIME type from the
+# data, so image entries come back as image/png instead of text.
+entry=$(
+  cliphist list |
+    rofi -dmenu -i -no-custom -p Clipboard \
+      -display-columns 2 \
+      -display-column-separator '\t' \
+      -theme-str 'listview { columns: 1; lines: 12; }'
+) || exit 0
+
+[ -n "$entry" ] || exit 0
+
+printf '%s' "$entry" | cliphist decode | wl-copy

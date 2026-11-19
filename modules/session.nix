@@ -10,7 +10,9 @@ _: {
       SYSTEMD_EDITOR = "nvim";
 
       TERMINAL = "foot";
+      BROWSER = "firefox";
 
+      _JAVA_AWT_WM_NONREPARENTING= "1";
       HISTFILE = "$ZDOTDIR/.zsh_history";
       MOZ_LEGACY_PROFILES = "1";
       QT_QPA_PLATFORMTHEME = "qt6ct";

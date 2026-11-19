@@ -7,10 +7,9 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    nix-skills = {
-      url = "github:olafkfreund/nix-skills";
+    devdash = {
+      url = "github:infktd/devdash";
       inputs.nixpkgs.follows = "nixpkgs";
-      inputs.home-manager.follows = "home-manager";
     };
     treefmt-nix = {
       url = "github:numtide/treefmt-nix";

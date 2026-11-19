@@ -1,0 +1,37 @@
+#!/bin/sh
+# $mod+p: toggle mirroring eDP-1 onto an active external display for presentation.
+# Requires wl-mirror (and rofi for multi-display selection / status popup).
+
+show_msg() {
+  if pgrep -x "mako|dunst|swaync|fnott" >/dev/null 2>&1; then
+    notify-send "Presentation Mirror" "$1"
+  else
+    rofi -e "$1" >/dev/null 2>&1 &
+  fi
+}
+
+if ! command -v wl-mirror >/dev/null 2>&1; then
+  show_msg "wl-mirror belum terinstall. Jalankan: sudo pacman -S wl-mirror"
+  exit 1
+fi
+
+if pkill -x wl-mirror; then
+  exit 0
+fi
+
+outputs=$(swaymsg -t get_outputs | jq -r '.[] | select(.name != "eDP-1" and .active) | .name')
+
+if [ -z "$outputs" ]; then
+  show_msg "Tidak ada display eksternal yang aktif (colokkan kabel proyektor/monitor dulu)"
+  exit 1
+fi
+
+count=$(printf '%s\n' "$outputs" | wc -l)
+if [ "$count" -eq 1 ]; then
+  target=$outputs
+else
+  target=$(printf '%s\n' "$outputs" | rofi -dmenu -i -no-custom -p "Mirror ke") || exit 0
+  [ -n "$target" ] || exit 0
+fi
+
+wl-mirror --fullscreen-output "$target" eDP-1 >/dev/null 2>&1 &

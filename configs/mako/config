@@ -1,0 +1,28 @@
+# Monochrome black & white theme matching waybar & sway
+font=JetBrainsMonoNerd 12
+background-color=#000000cc
+text-color=#ffffff
+border-color=#888888
+border-size=1
+border-radius=0
+
+width=380
+height=140
+padding=14
+margin=12
+
+default-timeout=5000
+ignore-timeout=0
+
+icons=1
+icon-path=/usr/share/icons/breeze-dark:/usr/share/icons/Adwaita
+max-icon-size=48
+markup=1
+
+[urgency=low]
+border-color=#333333
+default-timeout=3000
+
+[urgency=critical]
+border-color=#f53c3c
+default-timeout=0
